@@ -3,8 +3,12 @@
 	- made for standalone compilation
 */
 
+#include "cmdlib.h"
+
 #define	VM_MAGIC        0x12721444
 #define	VM_MAGIC_VER2   0x12721445
+
+#define PROGRAM_STACK_SIZE 0x10000
 
 typedef struct {
 	int		vmMagic;
@@ -32,3 +36,13 @@ typedef enum {
 	JTRGSEG,	// psuedo-segment that contains only jump table targets
 	NUM_SEGMENTS
 } segmentName_t;
+
+typedef struct {
+	int			value;
+	byte		op;
+	byte		opStack;
+	unsigned	jused:1;
+} instruction_t;
+
+const char *VM_LoadInstructions( const byte *code_pos, int codeLength, int instructionCount, instruction_t *buf );
+const char *VM_CheckInstructions( instruction_t *buf, int instructionCount, int dataLength );

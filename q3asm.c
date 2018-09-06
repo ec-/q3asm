@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qvm.h" // <- that one should be synced with engine!
 #include "cmdlib.h"
 
-#define EXTRAZ
 #define MYSORT
 #define EMITJTS
 
@@ -183,12 +182,6 @@ typedef struct symbol_s {
 		char *name;
 		int  line;
 	} file;
-
-#ifdef EXTRAZ
-	int		size;	// extra
-	char	*data;  // extra
-#endif
-
 } symbol_t;
 
 
@@ -236,12 +229,6 @@ symbol_t *entry      = NULL;  // QVM entry point
 symbol_t *symbols    = NULL;
 symbol_t *lastSymbol = NULL;  // Most recent symbol defined
 
-#ifdef EXTRAZ
-// extra
-symbol_t *lastInit   = NULL;
-char     *lastData   = NULL;
-#endif
-
 #define	MAX_ASM_FILES	256
 
 int		numAsmFiles;
@@ -252,7 +239,7 @@ int		currentFileIndex;
 char	*currentFileName;
 int		currentFileLine;
 
-int		stackSize = 0x10000; // 65536
+int		stackSize = PROGRAM_STACK_SIZE; // 65536
 
 // we need to convert arg and ret instructions to
 // stores to the local stack frame, so we need to track the
@@ -271,13 +258,6 @@ char	token[MAX_LINE_LENGTH];
 int		instructionCount;
 
 char	symExport[MAX_LINE_LENGTH];
-
-#ifdef EXTRAZ
-// extra
-#define ADDSZ(X) if (lastInit) lastInit->size += (X)
-#define ADDDT(X) if (lastData) *lastData++ = (X)
-#define SKPDT(X) if (lastData) lastData += (X)
-#endif
 
 #define ASMP(O) TryAssemble_##O
 #define ASMF(O) int TryAssemble_##O( void )
@@ -848,13 +828,6 @@ void DefineSymbol( const char *sym, int value, symtype_t type, qboolean allowSta
 			s->value = value;
 			s->segment = currentSegment;
 			lastSymbol = s;
-#ifdef EXTRAZ
-			// extra
-			lastInit = s; // ???
-			lastData = s->data; // ???
-			//lastInit = NULL;
-			//lastValue = NULL;
-#endif
 		}
 		return;
 	}
@@ -871,10 +844,6 @@ void DefineSymbol( const char *sym, int value, symtype_t type, qboolean allowSta
 	s->ignore = 0;
 	s->file.name = currentFileName;
 	s->file.line = currentFileLine;
-#ifdef EXTRAZ
-	s->size = 0; // extra
-	s->data = NULL; // extra
-#endif
 
 	hashtable_add( &symtable, hash, s );
 
@@ -892,14 +861,6 @@ void DefineSymbol( const char *sym, int value, symtype_t type, qboolean allowSta
 		lastSymbol->next = s;
 		lastSymbol = s;
 	}
-
-#ifdef EXTRAZ
-	// extra
-	if ( sym[0] == '$' ) {
-		lastInit = s;
-		lastData = s->data;
-	}
-#endif
 
 	return; //s
 }
@@ -1281,12 +1242,6 @@ ASMF(ADDRESS)
 {
 	int		v;
 
-#ifdef EXTRAZ
-	// extra
-	ADDSZ(4);
-	SKPDT(4);
-#endif
-
 	Parse();
 	v = ParseExpression();
 
@@ -1384,12 +1339,6 @@ ASMF(SKIP)
 	int		v;
 	v = ParseValue();
 
-#ifdef EXTRAZ
-	// extra
-	ADDSZ(v);
-	SKPDT(v);
-#endif
-
 	currentSegment->imageUsed += v;
 	return 1;
 }
@@ -1414,17 +1363,8 @@ ASMF(BYTE)
 		return 0;
 	}
 
-#ifdef EXTRAZ
-	// extra
-	ADDSZ(v);
-#endif
-
 	// emit little endian
 	for ( i = 0 ; i < v ; i++ ) {
-#ifdef EXTRAZ
-		// extra
-		ADDDT((v2 & 255));
-#endif
 		EmitByte( currentSegment, (v2 & 255) ); /* paranoid ANDing  -PH */
 		v2 >>= 8;
 	}
@@ -1494,20 +1434,6 @@ void AssembleLine( void ) {
 
 	opcode = op->opcode;
 
-#ifdef EXTRAZ
-	// extra - symbol size calculations
-	switch ( opcode ) {
-		case DIR_SKIP:
-		case DIR_BYTE:
-		case DIR_ADDRESS: 
-			break;
-		default: 
-			lastInit = NULL;
-			lastData = NULL;
-			break;
-	}
-#endif
-
 	if ( ignoreFunc ) {
 		if ( ignoreLabel ) {
 			CodeError( "ignore label in ignoreFunc scope" );
@@ -1544,12 +1470,6 @@ void AssembleLine( void ) {
 		op->func();
 		return;
 	}
-
-#ifdef EXTRAZ		
-	// extra
-	lastInit = NULL;
-	lastData = NULL;
-#endif
 
 	// we ignore most conversions
 	if ( op->opcode == OP_IGNORE ) {
@@ -1637,10 +1557,12 @@ WriteVmFile
 void WriteVmFile( void ) {
 	char	imageName[MAX_OS_PATH];
 	char	jtsName[MAX_OS_PATH];
+	const char *errMsg;
 	vmHeader_t	header;
 	FILE	*f;
 	unsigned int crc;
 	int		i, headerSize;
+	instruction_t *inst;
 
 	strcpy( imageName, outputFilename );
 	StripExtension( imageName );
@@ -1677,8 +1599,27 @@ void WriteVmFile( void ) {
 
 	// Build jump table targets segment
 	segment[JTRGSEG].imageUsed = 0;
+
+	inst = ( instruction_t* ) malloc ( (instructionCount + 8) * sizeof( inst[0] ) );
+	memset( inst, 0, (instructionCount + 8) * sizeof( inst[0] ) );
+	
+	errMsg = VM_LoadInstructions( segment[CODESEG].image, segment[CODESEG].imageUsed, instructionCount, inst );
+	if ( errMsg ) {
+		CodeError( "VM_LoadInstructions: %s\n", errMsg );
+		exit(1);
+	}
+
+	errMsg = VM_CheckInstructions( inst, instructionCount, 0x7FFFFFFF );
+	if ( errMsg ) {
+		CodeError( "VM_CheckInstructions: %s\n", errMsg );
+		exit(1);
+	}
+
 	//segment[JTRGSEG].segmentBase = segment[BSSSEG].segmentBase + segment[BSSSEG].imageUsed;
 	for ( i = 0; i < instructionCount; i++ ) {
+		if ( inst[i].jused ) {
+			continue;
+		}
 		if ( jbitmap[i/8]&(1<<(i&7)) ) {
 			EmitInt( &segment[JTRGSEG], i );
 		}
@@ -1758,7 +1699,7 @@ void WriteVmFile( void ) {
 }
 
 
-void PassDefineCompile() {
+void PassDefineCompile( void ) {
 	char	*ptr;
 	int		i;
 
@@ -1957,10 +1898,10 @@ static const char *banner = {
 main
 ==============
 */
-int main( int argc, char **argv ) {
+int main( int argc, const char *argv[] ) {
 	int			i;
 	double		start, end;
-	char		*bin;
+	const char	*bin;
 
 	if ( argc < 2 ) {
 		// strip binary name

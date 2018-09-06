@@ -30,7 +30,7 @@ endif
 
 default: q3asm
 
-q3asm: q3asm.c cmdlib.c
+q3asm: q3asm.c q3vm.c cmdlib.c
 	$(CC) $(Q3ASM_CFLAGS) -o $@ $^
 
 clean:
