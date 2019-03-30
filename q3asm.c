@@ -265,7 +265,7 @@ char	symExport[MAX_LINE_LENGTH];
 typedef struct {
 	char	*name;
 	int		opcode;
-	void	(*func)(void);
+	int		(*func)(void);
 } sourceOps_t;
 
 // declare prototypes
