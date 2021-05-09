@@ -112,7 +112,7 @@ typedef enum {
 	OP_MAX
 } opcode_t;
 
-typedef struct opcode_info_s 
+typedef struct opcode_info_s
 {
 	int	size;
 	int	stack;
@@ -210,13 +210,13 @@ VM_LoadInstructions
 loads instructions in structured format
 =================
 */
-const char *VM_LoadInstructions( const byte *code_pos, int codeLength, int instructionCount, instruction_t *buf ) 
+const char *VM_LoadInstructions( const byte *code_pos, int codeLength, int instructionCount, instruction_t *buf )
 {
 	static char errBuf[ 128 ];
 	const byte *code_start, *code_end;
 	int i, n, op0, op1, opStack;
 	instruction_t *ci;
-	
+
 	code_start = code_pos; // for printing
 	code_end =  code_pos + codeLength;
 
@@ -242,7 +242,7 @@ const char *VM_LoadInstructions( const byte *code_pos, int codeLength, int instr
 		if ( n == 4 ) {
 			ci->value = LittleLong( *((int*)code_pos) );
 			code_pos += 4;
-		} else if ( n == 1 ) { 
+		} else if ( n == 1 ) {
 			ci->value = *((unsigned char*)code_pos);
 			code_pos += 1;
 		} else {
@@ -269,7 +269,7 @@ VM_CheckInstructions
 performs additional consistency and security checks
 ===============================
 */
-const char *VM_CheckInstructions( instruction_t *buf, int instructionCount, int dataLength ) 
+const char *VM_CheckInstructions( instruction_t *buf, int instructionCount, int dataLength )
 {
 	static char errBuf[ 128 ];
 	int i, n, v, op0, op1, opStack, pstack;
@@ -283,11 +283,11 @@ const char *VM_CheckInstructions( instruction_t *buf, int instructionCount, int 
 	for ( i = 0; i < instructionCount; i++, ci++ ) {
 		opStack += ops[ ci->op ].stack;
 		if ( opStack < 0 ) {
-			sprintf( errBuf, "opStack underflow at %i", i ); 
+			sprintf( errBuf, "opStack underflow at %i", i );
 			return errBuf;
 		}
 		if ( opStack >= PROC_OPSTACK_SIZE * 4 ) {
-			sprintf( errBuf, "opStack overflow at %i", i ); 
+			sprintf( errBuf, "opStack overflow at %i", i );
 			return errBuf;
 		}
 	}
@@ -307,24 +307,24 @@ const char *VM_CheckInstructions( instruction_t *buf, int instructionCount, int 
 
 		// function entry
 		if ( op0 == OP_ENTER ) {
-			// missing block end 
+			// missing block end
 			if ( proc || ( pstack && op1 != OP_LEAVE ) ) {
-				sprintf( errBuf, "missing proc end before %i", i ); 
+				sprintf( errBuf, "missing proc end before %i", i );
 				return errBuf;
 			}
 			if ( ci->opStack != 0 ) {
 				v = ci->opStack;
-				sprintf( errBuf, "bad entry opstack %i at %i", v, i ); 
+				sprintf( errBuf, "bad entry opstack %i at %i", v, i );
 				return errBuf;
 			}
 			v = ci->value;
 			if ( v < 0 || v >= PROGRAM_STACK_SIZE || (v & 3) ) {
-				sprintf( errBuf, "bad entry programStack %i at %i", v, i ); 
+				sprintf( errBuf, "bad entry programStack %i at %i", v, i );
 				return errBuf;
 			}
-			
+
 			pstack = ci->value;
-			
+
 			// mark jump target
 			ci->jused = 1;
 			proc = ci;
@@ -339,7 +339,7 @@ const char *VM_CheckInstructions( instruction_t *buf, int instructionCount, int 
 			}
 
 			if ( endp == 0 ) {
-				sprintf( errBuf, "missing end proc for %i", i ); 
+				sprintf( errBuf, "missing end proc for %i", i );
 				return errBuf;
 			}
 
@@ -347,7 +347,7 @@ const char *VM_CheckInstructions( instruction_t *buf, int instructionCount, int 
 		}
 
 		// proc opstack will carry max.possible opstack value
-		if ( proc && ci->opStack > proc->opStack ) 
+		if ( proc && ci->opStack > proc->opStack )
 			proc->opStack = ci->opStack;
 
 		// function return
@@ -355,7 +355,7 @@ const char *VM_CheckInstructions( instruction_t *buf, int instructionCount, int 
 			// bad return programStack
 			if ( pstack != ci->value ) {
 				v = ci->value;
-				sprintf( errBuf, "bad programStack %i at %i", v, i ); 
+				sprintf( errBuf, "bad programStack %i at %i", v, i );
 				return errBuf;
 			}
 			// bad opStack before return
@@ -366,12 +366,12 @@ const char *VM_CheckInstructions( instruction_t *buf, int instructionCount, int 
 			}
 			v = ci->value;
 			if ( v < 0 || v >= PROGRAM_STACK_SIZE || (v & 3) ) {
-				sprintf( errBuf, "bad return programStack %i at %i", v, i ); 
+				sprintf( errBuf, "bad return programStack %i at %i", v, i );
 				return errBuf;
 			}
 			if ( op1 == OP_PUSH ) {
 				if ( proc == NULL ) {
-					sprintf( errBuf, "unexpected proc end at %i", i ); 
+					sprintf( errBuf, "unexpected proc end at %i", i );
 					return errBuf;
 				}
 				proc = NULL;
@@ -386,7 +386,7 @@ const char *VM_CheckInstructions( instruction_t *buf, int instructionCount, int 
 			v = ci->value;
 			// conditional jumps should have opStack == 8
 			if ( ci->opStack != 8 ) {
-				sprintf( errBuf, "bad jump opStack %i at %i", ci->opStack, i ); 
+				sprintf( errBuf, "bad jump opStack %i at %i", ci->opStack, i );
 				return errBuf;
 			}
 			//if ( v >= header->instructionCount ) {
@@ -397,7 +397,7 @@ const char *VM_CheckInstructions( instruction_t *buf, int instructionCount, int 
 			}
 			if ( buf[v].opStack != 0 ) {
 				n = buf[v].opStack;
-				sprintf( errBuf, "jump target %i has bad opStack %i", v, n ); 
+				sprintf( errBuf, "jump target %i has bad opStack %i", v, n );
 				return errBuf;
 			}
 			// mark jump target
@@ -409,7 +409,7 @@ const char *VM_CheckInstructions( instruction_t *buf, int instructionCount, int 
 		if ( op0 == OP_JUMP ) {
 			// jumps should have opStack == 4
 			if ( ci->opStack != 4 ) {
-				sprintf( errBuf, "bad jump opStack %i at %i", ci->opStack, i ); 
+				sprintf( errBuf, "bad jump opStack %i at %i", ci->opStack, i );
 				return errBuf;
 			}
 			if ( op1 == OP_CONST ) {
@@ -421,16 +421,16 @@ const char *VM_CheckInstructions( instruction_t *buf, int instructionCount, int 
 				}
 				if ( buf[v].opStack != 0 ) {
 					n = buf[v].opStack;
-					sprintf( errBuf, "jump target %i has bad opStack %i", v, n ); 
+					sprintf( errBuf, "jump target %i has bad opStack %i", v, n );
 					return errBuf;
 				}
 				if ( buf[v].op == OP_ENTER ) {
 					n = buf[v].op;
-					sprintf( errBuf, "jump target %i has bad opcode %i", v, n ); 
+					sprintf( errBuf, "jump target %i has bad opcode %i", v, n );
 					return errBuf;
 				}
 				if ( v == (i-1) ) {
-					sprintf( errBuf, "self loop at %i", v ); 
+					sprintf( errBuf, "self loop at %i", v );
 					return errBuf;
 				}
 				// mark jump target
@@ -441,7 +441,7 @@ const char *VM_CheckInstructions( instruction_t *buf, int instructionCount, int 
 
 		if ( op0 == OP_CALL ) {
 			if ( ci->opStack < 4 ) {
-				sprintf( errBuf, "bad call opStack at %i", i ); 
+				sprintf( errBuf, "bad call opStack at %i", i );
 				return errBuf;
 			}
 			if ( op1 == OP_CONST ) {
@@ -449,7 +449,7 @@ const char *VM_CheckInstructions( instruction_t *buf, int instructionCount, int 
 				// analyse only local function calls
 				if ( v >= 0 ) {
 					if ( v >= instructionCount ) {
-						sprintf( errBuf, "call target %i is out of range", v ); 
+						sprintf( errBuf, "call target %i is out of range", v );
 						return errBuf;
 					}
 					if ( buf[v].op != OP_ENTER ) {

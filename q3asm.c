@@ -40,11 +40,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 char	outputFilename[MAX_OS_PATH];
 
 typedef enum {
-	OP_UNDEF, 
+	OP_UNDEF,
 
-	OP_IGNORE, 
+	OP_IGNORE,
 
-	OP_BREAK, 
+	OP_BREAK,
 
 	OP_ENTER,
 	OP_LEAVE,
@@ -123,7 +123,7 @@ typedef enum {
 
 	OP_CVIF,
 	OP_CVFI,
-	
+
 	// additional directives
 
 	DIR_PROC = 128,
@@ -144,7 +144,7 @@ typedef enum {
 
 } opcode_t;
 
-typedef enum { 
+typedef enum {
 	PASS_DEFINE,
 	PASS_COMPILE,
 	PASS_OPTIMIZE,
@@ -152,7 +152,7 @@ typedef enum {
 } pass_t;
 
 
-typedef enum { 
+typedef enum {
 	ST_RESERVED,
 	ST_FUNCTION,
 	ST_LABEL
@@ -294,7 +294,7 @@ typedef struct {
 	ASMF(ADDRF);
 	ASMF(LABEL);
 
-sourceOps_t	sourceOps[] = 
+sourceOps_t	sourceOps[] =
 {
 	#include "opstrings.h"
 };
@@ -328,21 +328,21 @@ unsigned int crc_table[256];
 void _crc32_init( unsigned int *crc )
 {
 	unsigned int c;
-    int i, j;
-    for (i = 0; i < 256; i++)
-    {
-        c = i;
-        for (j = 0; j < 8; j++)
-            c = c & 1 ? (c >> 1) ^ 0xEDB88320UL : c >> 1;
-        crc_table[i] = c;
-    };
-    *crc = 0xFFFFFFFFUL;
+	int i, j;
+	for (i = 0; i < 256; i++)
+	{
+		c = i;
+		for (j = 0; j < 8; j++)
+			c = c & 1 ? (c >> 1) ^ 0xEDB88320UL : c >> 1;
+		crc_table[i] = c;
+	};
+	*crc = 0xFFFFFFFFUL;
 }
 
 void _crc32_update( unsigned int *crc, unsigned char *buf, unsigned int len )
 {
-    while (len--) 
-        *crc = crc_table[(*crc ^ *buf++) & 0xFF] ^ (*crc >> 8);
+	while (len--)
+		*crc = crc_table[(*crc ^ *buf++) & 0xFF] ^ (*crc >> 8);
 }
 
 void _crc32_final( unsigned int *crc )
@@ -352,13 +352,13 @@ void _crc32_final( unsigned int *crc )
 
 #endif
 
-int log2floor( int x ) 
+int log2floor( int x )
 {
 	int r = 1;
 	int v = x;
 	while( v >>= 1 )
 		r <<= 1;
-	if ( r < x ) 
+	if ( r < x )
 		r <<= 1;
 	return r;
 }
@@ -382,7 +382,7 @@ void hashtable_alloc( hashtable_t *H, int buckets )
 // By Paul Larson
 unsigned int HashSymbol( const char *sym ) {
 	unsigned int hash = 0;
-	while( *sym ) 
+	while( *sym )
 		hash = 101 * hash + *sym++;
 	return hash ^ (hash >> 16);
 }
@@ -391,7 +391,7 @@ unsigned int HashSymbol( const char *sym ) {
 // Modified version, perfect hash for our limited directive set
 unsigned int HashOpcode( const char *op ) {
 	unsigned int hash = 0;
-	while( *op ) 
+	while( *op )
 		hash = 2039545 * hash + *op++;
 	return hash ^ (hash >> 14);
 //		hash = 6720353 * hash + *op++;
@@ -411,7 +411,7 @@ void hashtable_add( hashtable_t *H, int hashvalue, void *data )
 	H->chains++;
 }
 
-/* 
+/*
 	There is no need in hashtable_remove routines or so since
 	symbol/opcode tables is allocated once and used until program end
 */
@@ -446,14 +446,14 @@ void hashtable_stats( hashtable_t *H )
 	empties = 0;
 	longest = 0;
 	nodes = 0;
-	for ( i = 0; i < H->buckets; i++ ) 
+	for ( i = 0; i < H->buckets; i++ )
 	{
 		if ( H->table[i] == NULL )
 			{ empties++; continue; }
 		for (hc = H->table[i], len = 0; hc; hc = hc->next, len++);
 		if (len > longest) { longest = len; }
 		nodes += len;
-    }
+	}
 	meanlen = (float)(nodes) / (H->buckets - empties);
 
 	report( "Stats for %s hashtable:", (H==&symtable) ? "symbol" : "opcode" );
@@ -462,9 +462,9 @@ void hashtable_stats( hashtable_t *H )
 }
 
 
-/* 
+/*
 	Search for a symbol in corresponding hash table
-	return NULL if not found 
+	return NULL if not found
 */
 symbol_t *hashtable_symbol_exists( int hash, const char *sym )
 {
@@ -485,11 +485,11 @@ symbol_t *hashtable_symbol_exists( int hash, const char *sym )
 /*
     Quick symbols by its values
 */
-static void sym_sort_v( symbol_t **a, int n ) 
+static void sym_sort_v( symbol_t **a, int n )
 {
 	symbol_t *temp;
 	symbol_t *m;
-	int	i, j; 
+	int	i, j;
 
 	i = 0;
 	j = n;
@@ -501,10 +501,10 @@ static void sym_sort_v( symbol_t **a, int n )
 		while ( a[j]->value > m->value ) j--;
 
 		if ( i <= j ) {
-			temp = a[i]; 
-			a[i] = a[j]; 
+			temp = a[i];
+			a[i] = a[j];
 			a[j] = temp;
-			i++; 
+			i++;
 			j--;
 		}
   } while ( i <= j );
@@ -532,7 +532,7 @@ void sort_symbols( void )
 	symbol_t *s;
 	symbol_t **symlist;
 
-	if ( symtable.chains <= 1 ) 
+	if ( symtable.chains <= 1 )
 	{
 		return; // nothing to sort actually
 	}
@@ -543,9 +543,9 @@ void sort_symbols( void )
 	// now count only used symbols
 	n = 0;
 	s = symbols;
-	while ( s != NULL ) 
+	while ( s != NULL )
 	{
-		if ( !s->ignore ) 
+		if ( !s->ignore )
 		{
 			symlist[n] = s;
 			n++;
@@ -554,13 +554,13 @@ void sort_symbols( void )
 	}
 
 	// nothing to sort?
-	if ( n <= 1 ) 
+	if ( n <= 1 )
 	{
 		free( symlist );
 		return;
 	}
 
-#ifdef _DEBUG	
+#ifdef _DEBUG
 	report( "Quick-sorting %d symbols\n", n );
 #endif
 
@@ -572,11 +572,11 @@ void sort_symbols( void )
 
 	// re-link chains
 	s = symbols = symlist[0];
-	for ( i = 1; i < n; i++ ) 
+	for ( i = 1; i < n; i++ )
 	{
       s->next = symlist[i];
       s = s->next;
-    }
+	}
 
 	lastSymbol = s;
 	s->next = NULL;
@@ -592,7 +592,7 @@ void sort_symbols( void )
 	should be between 0x7FFFFFFF and 0xFFFFFFFF come out as 0x7FFFFFFF when using
 	atoi().  Bad.
 */
-int atoiNoCap( const char *s ) 
+int atoiNoCap( const char *s )
 {
 	int		sign;
 	int		c, v;
@@ -601,7 +601,7 @@ int atoiNoCap( const char *s )
 		return 0;
 
 	// skip spaces
-	while ( ( c = (*s & 255) ) <= ' ' ) 
+	while ( ( c = (*s & 255) ) <= ' ' )
 	{
 		if ( !c )
 			return 0;
@@ -609,7 +609,7 @@ int atoiNoCap( const char *s )
 	}
 
 	// check sign
-	switch ( c ) 
+	switch ( c )
 	{
 		case '-':
 			s++;
@@ -624,7 +624,7 @@ int atoiNoCap( const char *s )
 
 	v = 0; // resulting value
 
-	for ( ;; ) 
+	for ( ;; )
 	{
 		c = *s++ & 255;
 		if ( c < '0' || c > '9' )
@@ -724,9 +724,9 @@ symbol_t* FindIgnoreSymbol( const char *sym ) {
 	hc = hashtable_get( symtable, HashSymbol( sym ) );
 	while ( hc ) {
 		s = (symbol_t*)hc->data;
-		if ( s->ignore && !strcmp( sym, s->name ) 
+		if ( s->ignore && !strcmp( sym, s->name )
 			// strict checks
-			&& s->file.name == currentFileName 
+			&& s->file.name == currentFileName
 			&& s->file.line == currentFileLine )
 			return s;
 		hc = hc->next;
@@ -743,9 +743,9 @@ returns non-NULL in case of ignored symbol
 ============
 */
 symbol_t *IsIgnoredSymbol( const char *sym ) {
-	char		buf[MAX_LINE_LENGTH]; 
+	char		buf[MAX_LINE_LENGTH];
 	symbol_t	*s;
-	
+
 	if ( sym[0] == '$' ) {
 		sprintf( buf, "%s_%i", sym, currentFileIndex );
 		s = FindIgnoreSymbol( buf ); // local
@@ -764,11 +764,11 @@ symbol_t *IsIgnoredSymbol( const char *sym ) {
 }
 
 
-/* 
+/*
 ============
 CheckIgnoredSymbols
 
-check and set ignore flags for non-referenced symbols  
+check and set ignore flags for non-referenced symbols
 ============
 */
 int CheckIgnoredSymbols( void ) {
@@ -807,7 +807,7 @@ void DefineSymbol( const char *sym, int value, symtype_t type, qboolean allowSta
 	if ( sym[0] == '$' ) {
 		sprintf( buf, "%s_%i", sym, currentFileIndex );
 		sym = buf;
-	} else 
+	} else
 	// special suffix for static symbols
 	if ( allowStatic && ( *symExport == 0 || strcmp( sym, symExport ) != 0 ) ) {
 		sprintf( buf, "%s^%i", sym, currentFileIndex );
@@ -874,7 +874,7 @@ Perform lookup and return symbol value
 ============
 */
 int LookupSymbol( const char *sym ) {
-	char		buf[MAX_LINE_LENGTH]; 
+	char		buf[MAX_LINE_LENGTH];
 	symbol_t	*s;
 
 	// can't operate at this stage
@@ -884,7 +884,7 @@ int LookupSymbol( const char *sym ) {
 	 // ignore all symbol lookups inside ignore scope
 	if ( ignoreFunc )
 		return 0;
-	
+
 	// now perform lookup and set reference counters
 	if ( sym[0] == '$' ) {
 		sprintf( buf, "%s_%i", sym, currentFileIndex );
@@ -957,7 +957,7 @@ char *ExtractLine( char *data ) {
 	p += (*p == '\n') ? 1 : 0;  /* Skip over final newline. */
 	return p;
 }
-                                                        
+
 /*
 ==============
 Parse
@@ -1029,7 +1029,7 @@ int	ParseExpression( void ) {
 	sym[i] = 0;
 
 	// resolve depending on first character
-	switch (*sym) {  
+	switch (*sym) {
 		/* Optimizing compilers can convert cases into "calculated jumps".  I think these are faster.  -PH */
 		case '-':
 		case '0': case '1': case '2': case '3': case '4':
@@ -1074,7 +1074,7 @@ SwitchToSegment
 
 BIG HACK: I want to put all 32 bit values in the data
 segment so they can be byte swapped, and all char data in the lit
-segment, but switch jump tables are emited in the lit segment and
+segment, but switch jump tables are emitted in the lit segment and
 initialized strng variables are put in the data segment.
 
 I can change segments here, but I also need to fixup the
@@ -1216,7 +1216,7 @@ ASMF(PROC)
 ASMF(ENDPROC)
 {
 	//int		v, v2;
-	
+
 	if ( ignoreFunc > 0 ) {
 		ignoreFunc--;
 		return 1;
@@ -1225,7 +1225,7 @@ ASMF(ENDPROC)
 	//Parse();				// skip the function name
 	//v = ParseValue();		// locals
 	//v2 = ParseValue();	// arg marshalling
-	
+
 	// all functions must leave something on the opstack
 	instructionCount++;
 	EmitByte( &segment[CODESEG], OP_PUSH );
@@ -1250,7 +1250,7 @@ ASMF(ADDRESS)
 
 	EmitInt( currentSegment, v );
 #if 0
-	if ( passNumber == PASS_COMPILE && token[ 0 ] == '$' ) // crude test for labels 
+	if ( passNumber == PASS_COMPILE && token[ 0 ] == '$' ) // crude test for labels
 	{
 		EmitInt( &segment[ JTRGSEG ], v );
 	}
@@ -1372,7 +1372,7 @@ ASMF(BYTE)
 }
 
 
-// code labels are emited as instruction counts, not byte offsets,
+// code labels are emitted as instruction counts, not byte offsets,
 // because the physical size of the code will change with
 // different run time compilers and we want to minimize the
 // size of the required translation table
@@ -1442,11 +1442,11 @@ void AssembleLine( void ) {
 		switch( opcode ) {
 			case DIR_PROC:
 			case DIR_ENDPROC:
-			//case DIR_ALIGN: 
+			//case DIR_ALIGN:
 			case DIR_CODE: // NEVER ignore segment directives!
 			case DIR_LIT:
 			case DIR_BSS:
-			case DIR_DATA: 
+			case DIR_DATA:
 				if ( op->func ) // execute only dedicated directives
 					op->func();
 			default:
@@ -1525,11 +1525,11 @@ void WriteMapFile( void ) {
 	StripExtension( imageName );
 	strcat( imageName, ".map" );
 
-	// Symbols list may be shrinked after sort because of ignored symbols
+	// Symbols list may be shrunk after sort because of ignored symbols
 	// so we probably can't perform normal define/compile passes after that.
 	// However, as we already created qvm file before - we can do anything now
 
-	sort_symbols(); 
+	sort_symbols();
 
 	report( "Writing %s...\n", imageName );
 
@@ -1602,7 +1602,7 @@ void WriteVmFile( void ) {
 
 	inst = ( instruction_t* ) malloc ( (instructionCount + 8) * sizeof( inst[0] ) );
 	memset( inst, 0, (instructionCount + 8) * sizeof( inst[0] ) );
-	
+
 	errMsg = VM_LoadInstructions( segment[CODESEG].image, segment[CODESEG].imageUsed, instructionCount, inst );
 	if ( errMsg ) {
 		CodeError( "VM_LoadInstructions: %s\n", errMsg );
@@ -1640,7 +1640,7 @@ void WriteVmFile( void ) {
 		for ( i = 0 ; i < sizeof( vmHeader_t ) / 4 ; i++ ) {
 			((int *)&header)[i] = LongSwap( ((int *)&header)[i] );
 		}
-	}   
+	}
 
 #ifdef EMITJTS
 
@@ -1650,8 +1650,8 @@ void WriteVmFile( void ) {
 	// So we export jump targets into separate file while keeping main qvm
 	// vq3-compatible. Host engine should be modified to accept jts files.
 	// -----------------------------------------------------------------------
-	// Jump targets is required by recent 1.32e engine builds to safely turn on 
-	// bytecode optimizations which may provide significant performance boost 
+	// Jump targets is required by recent 1.32e engine builds to safely turn on
+	// bytecode optimizations which may provide significant performance boost
 
 	_crc32_init( &crc );
 	_crc32_update( &crc, (void*)&header, sizeof( header ) - sizeof( header.jtrgLength ) );
@@ -1665,7 +1665,7 @@ void WriteVmFile( void ) {
 		for ( i = 0 ; i < sizeof( crc ) / 4 ; i++ ) {
 			((int *)&crc)[i] = LongSwap( ((int *)&crc)[i] );
 		}
-	}   	
+	}
 #endif
 
 	report( "Writing to %s\n", imageName );
@@ -1685,7 +1685,7 @@ void WriteVmFile( void ) {
 
 #ifdef EMITJTS
 	// write jump targets to separate file
-	if ( options.vanillaQ3Compatibility ) 
+	if ( options.vanillaQ3Compatibility )
 	{
 		CreatePath( jtsName );
 		f = SafeOpenWrite( jtsName );
@@ -1755,7 +1755,7 @@ void PassDefineCompile( void ) {
 void PassOptimize( void ) {
 	char		*ptr;
 	int			i;
-	
+
 	passNumber = PASS_OPTIMIZE;
 
 	if ( !CheckIgnoredSymbols() )
@@ -1918,7 +1918,7 @@ int main( int argc, const char *argv[] ) {
 
 	// default filename is "q3asm"
 	strcpy( outputFilename, "q3asm" );
-	numAsmFiles = 0;	
+	numAsmFiles = 0;
 
 	for ( i = 1 ; i < argc ; i++ ) {
 		if ( argv[i][0] != '-' ) {
@@ -1926,7 +1926,7 @@ int main( int argc, const char *argv[] ) {
 		}
 		if ( !strcmp( argv[i], "-o" ) ) {
 			if ( i == argc - 1 ) {
-				Error( "-o must preceed a filename" );
+				Error( "-o must precede a filename" );
 			}
 			/* Timbo of Tremulous pointed out -o not working; stock ID q3asm folded in the change. Yay. */
 			strcpy( outputFilename, argv[ i+1 ] );
@@ -1936,7 +1936,7 @@ int main( int argc, const char *argv[] ) {
 
 		if ( !strcmp( argv[i], "-f" ) ) {
 			if ( i == argc - 1 ) {
-				Error( "-f must preceed a filename" );
+				Error( "-f must precede a filename" );
 			}
 			ParseOptionFile( argv[ i+1 ] );
 			i++;
@@ -1957,8 +1957,8 @@ int main( int argc, const char *argv[] ) {
 			continue;
 		}
 
-/* 
-		Verbosity option added by Timbo, 2002.09.14.
+/*
+        Verbosity option added by Timbo, 2002.09.14.
         By default (no -v option), q3asm remains silent except for critical errors.
         Verbosity turns on all messages, error or not.
         Motivation: not wanting to scrollback for pages to find asm error.

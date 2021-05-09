@@ -92,13 +92,13 @@ double I_FloatTime (void)
 	static int		secbase;
 
 	gettimeofday(&tp, &tzp);
-	
+
 	if (!secbase)
 	{
 		secbase = tp.tv_sec;
 		return tp.tv_usec/1000000.0;
 	}
-	
+
 	return (tp.tv_sec - secbase) + tp.tv_usec/1000000.0;
 #endif
 }
@@ -128,13 +128,13 @@ char *COM_Parse (char *data)
 {
 	int		c;
 	int		len;
-	
+
 	len = 0;
 	com_token[0] = 0;
-	
+
 	if (!data)
 		return NULL;
-		
+
 // skip whitespace
 skipwhite:
 	while ( (c = *data) <= ' ')
@@ -146,7 +146,7 @@ skipwhite:
 		}
 		data++;
 	}
-	
+
 	// skip // comments
 	if (c=='/' && data[1] == '/')
 	{
@@ -154,7 +154,7 @@ skipwhite:
 			data++;
 		goto skipwhite;
 	}
-	
+
 
 	// handle quoted strings specially
 	if (c == '\"')
@@ -179,7 +179,7 @@ skipwhite:
 	switch ( c ) {
 		case '{': case '}':
 		case '(': case ')':
-		case '\'': case ':': 
+		case '\'': case ':':
 		{
 			com_token[len++] = c;
 			com_token[len] = '\0';
@@ -197,7 +197,7 @@ skipwhite:
 		switch ( c ) {
 			case '{': case '}':
 			case '(': case ')':
-			case '\'': case ':': 
+			case '\'': case ':':
 			{
 				com_token[len] = '\0';
 				return data;

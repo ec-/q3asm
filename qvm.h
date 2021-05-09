@@ -1,4 +1,4 @@
-/* 
+/*
 	copied from qfiles.h, should be synced with host qvm format
 	- made for standalone compilation
 */
@@ -33,7 +33,7 @@ typedef enum {
 	DATASEG,	// initialized 32 bit data, will be byte swapped
 	LITSEG,		// strings
 	BSSSEG,		// 0 filled
-	JTRGSEG,	// psuedo-segment that contains only jump table targets
+	JTRGSEG,	// pseudo-segment that contains only jump table targets
 	NUM_SEGMENTS
 } segmentName_t;
 

@@ -67,30 +67,30 @@ typedef unsigned char byte;
 
 int Q_filelength( FILE *f );
 
-void	Q_mkdir( const char *path );
+void    Q_mkdir( const char *path );
 
-double I_FloatTime( void );
+double  I_FloatTime( void );
 
-void	Error( const char *error, ... );
+void    Error( const char *error, ... );
 
-FILE	*SafeOpenWrite( const char *filename );
-FILE	*SafeOpenRead( const char *filename );
-void	SafeRead( FILE *f, void *buffer, int count );
-void	SafeWrite( FILE *f, const void *buffer, int count );
+FILE    *SafeOpenWrite( const char *filename );
+FILE    *SafeOpenRead( const char *filename );
+void    SafeRead( FILE *f, void *buffer, int count );
+void    SafeWrite( FILE *f, const void *buffer, int count );
 
-int		LoadFile( const char *filename, void **bufferptr );
-void	SaveFile( const char *filename, const void *buffer, int count );
+int     LoadFile( const char *filename, void **bufferptr );
+void    SaveFile( const char *filename, const void *buffer, int count );
 
-void 	DefaultExtension( char *path, const char *extension );
-void 	StripExtension( char *path );
+void    DefaultExtension( char *path, const char *extension );
+void    StripExtension( char *path );
 
-void	CreatePath( const char *path );
+void    CreatePath( const char *path );
 
-void	ExtractFileExtension( const char *path, char *dest );
+void    ExtractFileExtension( const char *path, char *dest );
 
 char    *COM_Parse ( char *data );
 
-extern char com_token[1024];
+extern  char com_token[1024];
 
 char    *copystring( const char *s );
 

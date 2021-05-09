@@ -44,7 +44,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 { "ASGNI1", OP_STORE1 },
 { "ASGNU1", OP_STORE1 },
 
-{ "INDIRB", OP_IGNORE },	// block copy deals with this
+{ "INDIRB", OP_IGNORE },  // block copy deals with this
 { "INDIRF4", OP_LOAD4 },
 { "INDIRI4", OP_LOAD4 },
 { "INDIRP4", OP_LOAD4 },
@@ -60,7 +60,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 { "CVFI4", OP_CVFI },
 
 { "CVIF4", OP_CVIF },
-{ "CVII4", OP_SEX8 },	// will be either SEX8 or SEX16
+{ "CVII4", OP_SEX8 },  // will be either SEX8 or SEX16
 { "CVII1", OP_IGNORE },
 { "CVII2", OP_IGNORE },
 { "CVIU4", OP_IGNORE },
@@ -159,16 +159,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 { "address", DIR_ADDRESS, ASMP(ADDRESS) },
 { "export",  DIR_EXPORT,  ASMP(EXPORT)  },
 { "import",  DIR_IMPORT,  ASMP(IMPORT)  },
-{ "code",    DIR_CODE,	  ASMP(CODE)    },
-{ "data",    DIR_DATA,	  ASMP(DATA)    },
-{ "lit",     DIR_LIT,	  ASMP(LIT)     },
-{ "bss",     DIR_BSS,	  ASMP(BSS)     },
-{ "line",    DIR_LINE,	  ASMP(LINE)    },
-{ "file",    DIR_FILE,	  ASMP(FILE)    },
-{ "equ",     DIR_EQU,	  ASMP(EQU)     },
-{ "align",   DIR_ALIGN,	  ASMP(ALIGN)   },
-{ "byte",    DIR_BYTE,	  ASMP(BYTE)    },
-{ "skip",    DIR_SKIP,	  ASMP(SKIP)    },
+{ "code",    DIR_CODE,    ASMP(CODE)    },
+{ "data",    DIR_DATA,    ASMP(DATA)    },
+{ "lit",     DIR_LIT,     ASMP(LIT)     },
+{ "bss",     DIR_BSS,     ASMP(BSS)     },
+{ "line",    DIR_LINE,    ASMP(LINE)    },
+{ "file",    DIR_FILE,    ASMP(FILE)    },
+{ "equ",     DIR_EQU,     ASMP(EQU)     },
+{ "align",   DIR_ALIGN,   ASMP(ALIGN)   },
+{ "byte",    DIR_BYTE,    ASMP(BYTE)    },
+{ "skip",    DIR_SKIP,    ASMP(SKIP)    },
 
 { "pop",    OP_IGNORE,     ASMP(POP) },
 
